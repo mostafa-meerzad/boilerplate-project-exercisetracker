@@ -3,13 +3,13 @@ const { exerciseSchema } = require("./exercise");
 const Joi = require("joi");
 
 const userSchema = new mongoose.Schema({
-  name: {
+  username: {
     type: String,
     minlength: 3,
     maxlength: 100,
     required: true,
   },
-  log: [exerciseSchema],
+  logs: [exerciseSchema],
 });
 
 userSchema.virtual("count").get(function () {
@@ -20,7 +20,7 @@ const User = mongoose.model("User", userSchema);
 
 function validate(user) {
   const schema = Joi.object({
-    name: Joi.string().required().min(3).max(100),
+    username: Joi.string().required().min(3).max(100),
   });
 
   return schema.validate(user);
