@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 require('dotenv').config()
+require("./startup/db")
+
 
 app.use(cors())
 app.use(express.static('public'))
