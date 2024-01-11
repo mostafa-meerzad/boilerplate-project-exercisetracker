@@ -16,7 +16,9 @@ function validate(exercise) {
   const schema = Joi.object({
     description: Joi.string().required(),
     duration: Joi.number().required().positive(),
-    date: Joi.date(),
+    date: Joi.date()
+      .allow("")
+      .default(() => new Date().toDateString()),
   });
 
   return schema.validate(exercise);

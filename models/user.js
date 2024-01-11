@@ -9,11 +9,11 @@ const userSchema = new mongoose.Schema({
     maxlength: 100,
     required: true,
   },
-  logs: [exerciseSchema],
+  log: [exerciseSchema],
 });
 
 userSchema.virtual("count").get(function () {
-  return this.log.length;
+  return this.exercises.length;
 });
 
 const User = mongoose.model("User", userSchema);
