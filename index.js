@@ -23,41 +23,44 @@ app.get("/api/users", async (req, res) => {
 
 app.post("/api/users/", async (req, res) => {
   // todo: validate userName sent from client
-  // todo: create new user with given name
-  // todo: send the newly created user back
   const { error } = validateUser(req.body);
   if (error) return res.status(400).send(error.details[0].message);
-
+  
+  // todo: create new user with given name
   let user = new User(req.body);
   user = await user.save();
+  
+  // todo: send the newly created user back
   res.send(_.pick(user, ["_id", "username"]));
 });
 
 app.post("/api/users/:_id/exercises", async (req, res) => {
   // todo: verify the user exists
-  // todo: validate data sent by user
-  // todo: create an exercise
-  // todo: add exercise to the user
-  // todo: return the newly created exercise
-
   const user = await User.findById(req.params._id);
   if (!user) return res.status(400).send("invalid userId");
 
+  // todo: validate data sent by user
   const { error } = validateExercise(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  // user.log.push(exercise);
+  // todo: create an exercise
+  const exercise = new Exercise(
+    _.pick(req.body, ["description", "duration", "date"])
+  );
+
+  // todo: add exercise to the user
+  user.log.push(exercise);
   await user.save();
-  const result = _.pick(user, ["username", "_id"]);
-  // const recentExercise = user["log"][user["log"].length - 1];
-  // result.description = req.body.description;
-  // result.date = req.body.date;
-  // result.duration = req.body.duration;
-  // result.description = recentExercise["description"];
-  // result.date = recentExercise["date"];
-  // result.duration = recentExercise["duration"];
+
+  // todo:construct the response and return the newly created exercise
+  const result = _.pick(user, ["_id", "username"]);
+  const recentExercise = user["log"][user["log"].length - 1];
+  result.description = recentExercise?.["description"];
+  result.date = req.body.date
+    ? new Date(req.body.date).toDateString()
+    : new Date().toDateString();
+  result.duration = parseInt(recentExercise?.["duration"]);
   res.send(result);
-  // res.send(user);
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
