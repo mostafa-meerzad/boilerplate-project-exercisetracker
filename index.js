@@ -25,11 +25,11 @@ app.post("/api/users/", async (req, res) => {
   // todo: validate userName sent from client
   const { error } = validateUser(req.body);
   if (error) return res.status(400).send(error.details[0].message);
-  
+
   // todo: create new user with given name
   let user = new User(req.body);
   user = await user.save();
-  
+
   // todo: send the newly created user back
   res.send(_.pick(user, ["_id", "username"]));
 });
@@ -60,6 +60,45 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
     ? new Date(req.body.date).toDateString()
     : new Date().toDateString();
   result.duration = parseInt(recentExercise?.["duration"]);
+  res.send(result);
+});
+
+app.get("/api/users/:_id/logs", async (req, res) => {
+  // todo: find the user
+  const user = await User.findById(req.params._id);
+  // todo: if no user found return an error
+  if (!user) return res.status(404).send("no such user found!");
+  // todo: otherwise return the user document
+
+  const dateFrom = req.query.from ? new Date(req.query.from) : null;
+  const dateTo = req.query.to ? new Date(req.query.to) : null;
+  const limit = req.query.limit;
+
+  let logs = user.log.map((x) => {
+    const date = new Date(x.date).toDateString();
+    return { description: x["description"], duration: x["duration"], date };
+  });
+
+  if (dateFrom && dateTo) {
+    logs = logs.filter(
+      (x) => new Date(x.date) >= dateFrom && new Date(x.date) <= dateTo
+    );
+  }
+
+  if (dateFrom) {
+    logs = logs.filter((x) => new Date(x.date) >= dateFrom);
+  }
+
+  if (dateTo) {
+    logs = logs.filter((x) => new Date(x.date) <= dateTo);
+  }
+  if (limit) {
+    logs = _.take(logs, limit);
+  }
+
+  const result = _.pick(user, ["_id", "username", "count"]);
+  result.log = logs;
+
   res.send(result);
 });
 

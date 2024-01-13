@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.virtual("count").get(function () {
-  return this.exercises.length;
+  return this.log.length;
 });
 
 const User = mongoose.model("User", userSchema);
